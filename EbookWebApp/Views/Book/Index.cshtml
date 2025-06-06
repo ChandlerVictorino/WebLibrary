@@ -1,0 +1,111 @@
+﻿@using PagedList.Mvc;
+@model PagedList.IPagedList<EbookWebApp.ViewModels.BookViewModel>
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+@using Microsoft.AspNet.Identity
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="row margin-top-30">
+    <div class="col-md-12 text-center">
+        <p class="lead movie-logo "> e-Book Store </p>
+    </div>
+</div>
+<hr />
+
+
+@using (Html.BeginForm(new { @class = "form-inline" }))
+{
+    <input class="form-control mr-sm-2  d-inline" id="SearchString" name="SearchString" type="text" placeholder="Search" value="@ViewBag.CurrentFilter">
+    @Html.DropDownList("bookGenre", null, "All", new { @class = "form-control mr-sm-2  d-inline" })
+    <button class="btn btn-secondary my-2 my-sm-0 d-inline" type="submit">Submit</button>
+}
+
+
+<table class="table margin-top-20">
+    <tr class="table-info">
+        <th>
+            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSortParm })
+        </th>
+        <th>
+            @Html.ActionLink("Author", "Index", new { sortOrder = ViewBag.AuthorSortParm })
+        </th>
+        <th>
+            Genre
+        </th>
+        <th>
+            @Html.ActionLink("Release date", "Index", new { sortOrder = ViewBag.DateSortParm })
+        </th>
+        <th>
+            @Html.ActionLink("Rating", "Index", new { sortOrder = ViewBag.RateSortParm })
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr class="table-light">
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Genre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReleaseDate)
+            </td>
+
+            <td>
+                @Html.Partial("_Rating", item)
+            </td>
+
+            @if (Request.IsAuthenticated)
+            {
+                <td>
+                    @Html.ActionLink("Get!", "Get", "Order", new { id = item.Id }, new { @class = "btn btn-info" })
+                </td>
+            }
+            else
+            {
+                <td>
+                    @Html.ActionLink("Get!", "Login", "Account", new { id = item.Id }, new { @class = "btn btn-primary" })
+                </td>
+            }
+            @if (User.IsInRole("Admin"))
+            {
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                </td>
+            }
+        </tr>
+    }
+</table>
+
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(
+    Model, page => Url.Action("Index",
+    new
+    {
+        page, sortOrder = ViewBag.CurrentSort,
+        currentFilter = ViewBag.CurrentFilter
+    }
+    ))
+
+@if (User.IsInRole("Admin"))
+{
+    @Html.ActionLink("Add New", "Create")
+}
+
+
+
+
+

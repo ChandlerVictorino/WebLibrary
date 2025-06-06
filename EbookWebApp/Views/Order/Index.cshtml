@@ -1,0 +1,65 @@
+﻿@model IEnumerable<EbookWebApp.ViewModels.OrderViewModel>
+
+@{
+    ViewBag.Title = "Orders";
+}
+
+<h2>Your orders history:</h2>
+<hr/>
+
+<table class="table">
+    <tr class="table-success">
+        <th>
+            @Html.DisplayNameFor(model => model.Book.Author)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Book.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.OrderDate)
+        </th>
+        <th>
+            Your rating
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr class="table-light">
+            <td>
+                @Html.DisplayFor(modelItem => item.Book.Author)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Book.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrderDate)
+            </td>
+            <td id="RatingControl">
+                @Html.Partial("_Rating", item)
+            </td>
+        </tr>
+    }
+
+</table>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<script>
+
+    function SetRatingControl(e) {
+        var rank = $("#RatingControl a[name='Rank']");
+        rank.on('click', SetRating)
+    }
+
+    function SetRating(e) {
+        var data = { orderid: $(this).data("orderid"), rank: $(this).data("rank") };
+        $.post("@Url.Action("Rate", "Order")", data).then(data =>  location.reload());
+        
+    }
+    
+    $(document).ready(SetRatingControl);
+</script>
+}
